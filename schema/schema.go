@@ -6,9 +6,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var phoneLoginSchema *funplugin.ObjectSchema
-var medalSchema *funplugin.ObjectSchema
-var qqloginSchema *funplugin.ObjectSchema
+var orderInfoSchema *funplugin.ObjectSchema
 
 var load = false
 
@@ -41,14 +39,8 @@ var mutationFields = graphql.Fields{
 func NewPlugSchema(pls funplugin.PluginManger) funplugin.Schema {
 	if load != true {
 
-		phoneLoginSchema, _ = pls.NewSchemaBuilder(model.UserInfo{})
-		marge(phoneLoginSchema)
-
-		medalSchema, _ = pls.NewSchemaBuilder(model.Medal{})
-		marge(medalSchema)
-
-		qqloginSchema, _ = pls.NewSchemaBuilder(model.QQLoginInfo{})
-		marge(qqloginSchema)
+		orderInfoSchema, _ = pls.NewSchemaBuilder(model.OrderInfo{})
+		marge(orderInfoSchema)
 
 		load = true
 	}
@@ -63,9 +55,7 @@ func NewPlugSchema(pls funplugin.PluginManger) funplugin.Schema {
 		Object: map[string]*graphql.Object{
 			// "account": accountType,
 
-			"phoneLogin": phoneLoginSchema.GraphQLType,
-			"medal":      medalSchema.GraphQLType,
-			"qqlogin":    qqloginSchema.GraphQLType,
+			"orderInfo": orderInfoSchema.GraphQLType,
 
 			// "role":        roleSchema.GraphQLType,
 			// "roleaccount": roleAccountSchema.GraphQLType,

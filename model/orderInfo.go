@@ -61,13 +61,13 @@ func (o OrderInfo) Update(params graphql.ResolveParams) (OrderInfo, error) {
 	}
 	p := params.Args
 	if p["childrenId"] != nil {
-		o.ChildrenId = uint(p["childrenId"].(int))
+		v.ChildrenId = uint(p["childrenId"].(int))
 	}
 	if p["childrenType"] != nil {
 		v.ChildrenType = p["childrenType"].(OrderInfoChildrenTypeEnum)
 	}
 	if p["remark"] != nil {
-		o.Remark = p["remark"].(string)
+		v.Remark = p["remark"].(string)
 	}
 	err := db.Save(&v).Error
 	return v, err
