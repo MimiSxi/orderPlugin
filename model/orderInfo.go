@@ -9,6 +9,7 @@ import (
 // 订单信息
 type OrderInfo struct {
 	ID           uint                      `gorm:"primary_key" gqlschema:"query!;querys;update!" description:"订单id"`
+	UserId       uint                      `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys" description:"创建用户id" funservice:"employee"`
 	ChildrenId   uint                      `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys;update;" description:"引用id"`
 	ChildrenType OrderInfoChildrenTypeEnum `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys;update;" description:"引用类型"`
 	Remark       string                    `gorm:"Type:varchar(255);DEFAULT:'';NOT NULL;" gqlschema:"create;update" description:"备注"`
@@ -45,6 +46,7 @@ func (o OrderInfo) Querys(params graphql.ResolveParams) (OrderInfos, error) {
 
 func (o OrderInfo) Create(params graphql.ResolveParams) (OrderInfo, error) {
 	p := params.Args
+	o.UserId = uint(p["userId"].(int))
 	o.ChildrenId = uint(p["childrenId"].(int))
 	o.ChildrenType = p["childrenType"].(OrderInfoChildrenTypeEnum)
 	if p["remark"] != nil {
