@@ -13,13 +13,7 @@ var orderInfoSchema *funplugin.ObjectSchema
 var load = false
 
 func Init() {
-	//union, err := plugin.AutoField("albumOrder,nothing")
-	//if err != nil {
-	//	panic(errors.New("not have object type"))
-	//}
-	//orderInfoSchema.GraphQLType.AddFieldConfig("goods", union)
-
-	union, err := plugin.AutoField("albumOrder")
+	union, err := plugin.AutoField("albumorder,")
 	if err != nil {
 		panic(errors.New("not have object type"))
 	}
