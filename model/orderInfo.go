@@ -10,22 +10,26 @@ import (
 
 // 订单信息
 type OrderInfo struct {
-	ID           uint                      `gorm:"primary_key" gqlschema:"query!;querys;update!" description:"订单id"`
-	UserId       uint                      `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys" description:"创建用户id" funservice:"employee"`
-	ChildrenId   uint                      `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys" description:"引用id" funservice:"albumOrder"`
-	ChildrenType OrderInfoChildrenTypeEnum `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys" description:"引用类型"`
-	Status       OrderStatusEnumType       `gorm:"DEFAULT:1;NOT NULL;" gqlschema:"create!;querys;update;" description:"订单状态"`
-	GoodsProp    PropJson                  `gorm:"Type:text;" gqlschema:"create!;update;" description:"商品属性"`
-	Address      string                    `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;querys;update" description:"收货地址"`
-	Remark       string                    `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;querys;update" description:"备注"`
-	GoodsPrice   uint                      `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;querys;update" description:"商品价格"`
-	FreightPrice uint                      `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;querys;update" description:"运费"`
-	PaymentId    string                    `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;update;querys" description:"支付id"`
-	PayWay       OrderPayWayEnumType       `gorm:"DEFAULT:1;NOT NULL;" gqlschema:"create;update;querys" description:"支付方式枚举类型"`
-	PayTime      time.Time                 `gorm:"DEFAULT:'1970-1-1 00:00:00';" description:"支付时间" gqlschema:"querys"`
-	DeliveryId   string                    `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"update;querys" description:"快递id"`
-	CreatedAt    time.Time                 `description:"创建时间" gqlschema:"querys"`
-	UpdatedAt    time.Time                 `description:"更新时间" gqlschema:"querys"`
+	ID           uint                `gorm:"primary_key" gqlschema:"query!;querys;update!" description:"订单id"`
+	UserId       uint                `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys" description:"创建用户id" funservice:"employee"`
+	ChildrenId   uint                `gorm:"unique_refer;" gqlschema:"create!;querys" description:"引用id" funservice:"object_typekey:ChildrenType"`
+	ChildrenType string              `gorm:"unique_refer;" gqlschema:"create!;querys" description:"引用类型"`
+
+	//ReferType string `gorm:"unique_refer;" gqlschema:"create!;querys" description:"引用类型"`
+	//ReferID   uint   `gorm:"unique_refer;" gqlschema:"create!;querys" funservice:"object_typekey:ReferType" description:"引用id"`
+
+	Status       OrderStatusEnumType `gorm:"DEFAULT:1;NOT NULL;" gqlschema:"create!;querys;update;" description:"订单状态"`
+	//GoodsProp    PropJson                  `gorm:"Type:text;" gqlschema:"create!;update;" description:"商品属性"`
+	Address      string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;querys;update" description:"收货地址"`
+	Remark       string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;querys;update" description:"备注"`
+	GoodsPrice   uint                `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;querys;update" description:"商品价格"`
+	FreightPrice uint                `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;querys;update" description:"运费"`
+	PaymentId    string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;update;querys" description:"支付id"`
+	PayWay       OrderPayWayEnumType `gorm:"DEFAULT:1;NOT NULL;" gqlschema:"create;update;querys" description:"支付方式枚举类型"`
+	PayTime      time.Time           `gorm:"DEFAULT:'1970-1-1 00:00:00';" description:"支付时间" gqlschema:"querys"`
+	DeliveryId   string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"update;querys" description:"快递id"`
+	CreatedAt    time.Time           `description:"创建时间" gqlschema:"querys"`
+	UpdatedAt    time.Time           `description:"更新时间" gqlschema:"querys"`
 	DeletedAt    *time.Time
 	v2           int `gorm:"-" exclude:"true"`
 }
@@ -49,6 +53,10 @@ func (c PropJson) Scan(input interface{}) error {
 	}
 	err := json.Unmarshal(v, c)
 	return err
+}
+
+func (o *OrderInfo) QueryByID(id uint) (err error) {
+	return db.Where("id = ?", id).First(&o).Error
 }
 
 func (o OrderInfo) Query(params graphql.ResolveParams) (OrderInfo, error) {
@@ -75,9 +83,9 @@ func (o OrderInfo) Create(params graphql.ResolveParams) (OrderInfo, error) {
 	p := params.Args
 	o.UserId = uint(p["userId"].(int))
 	o.ChildrenId = uint(p["childrenId"].(int))
-	o.ChildrenType = p["childrenType"].(OrderInfoChildrenTypeEnum)
+	o.ChildrenType = p["childrenType"].(string)
 	o.Status = p["status"].(OrderStatusEnumType)
-	o.GoodsProp = nil // todo 商品json
+	//o.GoodsProp = nil // todo 商品json
 	if p["address"] != nil {
 		o.Address = p["address"].(string)
 	}
@@ -109,9 +117,9 @@ func (o OrderInfo) Update(params graphql.ResolveParams) (OrderInfo, error) {
 	if p["status"] != nil {
 		v.Status = p["status"].(OrderStatusEnumType)
 	}
-	if p["goodsProp"] != nil {
-		v.GoodsProp = nil // todo 商品json
-	}
+	//if p["goodsProp"] != nil {
+	//	v.GoodsProp = nil // todo 商品json
+	//}
 	if p["address"] != nil {
 		v.Address = p["address"].(string)
 	}
