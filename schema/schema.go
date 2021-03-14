@@ -1,7 +1,9 @@
 package schema
 
 import (
+	"errors"
 	"github.com/Fiber-Man/funplugin"
+	"github.com/Fiber-Man/funplugin/plugin"
 	"github.com/Fiber-Man/orderPlugin/model"
 	"github.com/graphql-go/graphql"
 )
@@ -11,7 +13,11 @@ var orderInfoSchema *funplugin.ObjectSchema
 var load = false
 
 func Init() {
-	// InitAccount()
+	union, err := plugin.AutoField("albumOrder,nothing")
+	if err != nil {
+		panic(errors.New("not have object type"))
+	}
+	orderInfoSchema.GraphQLType.AddFieldConfig("goods", union)
 }
 
 func marge(oc *funplugin.ObjectSchema) {
