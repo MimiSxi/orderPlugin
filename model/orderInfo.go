@@ -14,10 +14,6 @@ type OrderInfo struct {
 	UserId       uint                `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys" description:"创建用户id" funservice:"employee"`
 	ChildrenId   uint                `gorm:"unique_refer;" gqlschema:"create!;querys" description:"引用id" funservice:"object_typekey:ChildrenType"`
 	ChildrenType string              `gorm:"unique_refer;" gqlschema:"create!;querys" description:"引用类型"`
-
-	//ReferType string `gorm:"unique_refer;" gqlschema:"create!;querys" description:"引用类型"`
-	//ReferID   uint   `gorm:"unique_refer;" gqlschema:"create!;querys" funservice:"object_typekey:ReferType" description:"引用id"`
-
 	Status       OrderStatusEnumType `gorm:"DEFAULT:1;NOT NULL;" gqlschema:"create!;querys;update;" description:"订单状态"`
 	//GoodsProp    PropJson                  `gorm:"Type:text;" gqlschema:"create!;update;" description:"商品属性"`
 	Address      string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;querys;update" description:"收货地址"`
