@@ -38,6 +38,7 @@ func NewDB(gdb *gorm.DB) (err error) {
 	db.LogMode(true)
 	db.SetLogger(&Logger{logrus.StandardLogger()})
 	db.AutoMigrate(&OrderInfo{})
+	db.AutoMigrate(&AliPayInfo{})
 	return nil
 }
 

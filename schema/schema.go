@@ -9,6 +9,7 @@ import (
 )
 
 var orderInfoSchema *funplugin.ObjectSchema
+var alipaySchema *funplugin.ObjectSchema
 
 var load = false
 
@@ -48,6 +49,9 @@ func NewPlugSchema(pls funplugin.PluginManger) funplugin.Schema {
 		orderInfoSchema, _ = pls.NewSchemaBuilder(model.OrderInfo{})
 		marge(orderInfoSchema)
 
+		alipaySchema, _ = pls.NewSchemaBuilder(model.AliPayInfo{})
+		marge(alipaySchema)
+
 		load = true
 	}
 
@@ -62,6 +66,7 @@ func NewPlugSchema(pls funplugin.PluginManger) funplugin.Schema {
 			// "account": accountType,
 
 			"orderInfo": orderInfoSchema.GraphQLType,
+			"alipayInfo": alipaySchema.GraphQLType,
 
 			// "role":        roleSchema.GraphQLType,
 			// "roleaccount": roleAccountSchema.GraphQLType,
