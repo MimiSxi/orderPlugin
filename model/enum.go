@@ -6,7 +6,7 @@ import "github.com/Fiber-Man/funplugin"
 type OrderInfoChildrenTypeEnum uint
 
 const (
-	PHOTO_ALBUM  OrderInfoChildrenTypeEnum = 1 // 相册系统
+	PHOTO_ALBUM OrderInfoChildrenTypeEnum = 1 // 相册系统
 )
 
 func (s OrderInfoChildrenTypeEnum) Enum() map[string]funplugin.EnumValue {
@@ -71,6 +71,36 @@ func (s OrderPayWayEnumType) Enum() map[string]funplugin.EnumValue {
 		"ALIPAY": funplugin.EnumValue{
 			Value:       ALIPAY,
 			Description: "支付宝",
+		},
+	}
+}
+
+type TradeStatus uint
+
+const (
+	TradeStatusWaitBuyerPay TradeStatus = 1 //（交易创建，等待买家付款）
+	TradeStatusClosed       TradeStatus = 2 //（未付款交易超时关闭，或支付完成后全额退款）
+	TradeStatusSuccess      TradeStatus = 3 //（交易支付成功）
+	TradeStatusFinished     TradeStatus = 4 //（交易结束，不可退款）
+)
+
+func (s TradeStatus) Enum() map[string]funplugin.EnumValue {
+	return map[string]funplugin.EnumValue{
+		"TradeStatusWaitBuyerPay": funplugin.EnumValue{
+			Value:       TradeStatusWaitBuyerPay,
+			Description: "交易创建，等待买家付款",
+		},
+		"TradeStatusClosed": funplugin.EnumValue{
+			Value:       TradeStatusClosed,
+			Description: "未付款交易超时关闭，或支付完成后全额退款",
+		},
+		"TradeStatusSuccess": funplugin.EnumValue{
+			Value:       TradeStatusSuccess,
+			Description: "交易支付成功",
+		},
+		"TradeStatusFinished": funplugin.EnumValue{
+			Value:       TradeStatusFinished,
+			Description: "交易结束，不可退款",
 		},
 	}
 }

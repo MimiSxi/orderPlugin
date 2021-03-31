@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -67,4 +68,37 @@ func OpenDatabase(Driver string,
 
 func Run(f func(*gorm.DB)) {
 	f(db)
+}
+
+type database struct {
+	User     string `json:user`
+	Password string `json:password`
+	Host     string `json:host`
+	Port     int    `json:port`
+	Database string `json:database`
+}
+
+type AliProp struct {
+	AppId       string `json:appid`
+	Url         string `json:url`
+	RedirectUrl string `json:redirectUrl`
+}
+
+type config struct {
+	Db  database `json:db`
+	Ali AliProp  `json:ali`
+}
+
+var AppId string
+var Url string
+var RedirectUrl string
+
+// 获取配置
+func Setconfig(jsonStr string) error {
+	con := config{}
+	err := json.Unmarshal([]byte(jsonStr), &con)
+	AppId = con.Ali.AppId
+	Url = con.Ali.Url
+	RedirectUrl = con.Ali.RedirectUrl
+	return err
 }

@@ -21,8 +21,15 @@ type database struct {
 	Database string `json:database`
 }
 
+type AliProp struct {
+	AppId       string `json:appid`
+	Url         string `json:url`
+	RedirectUrl string `json:redirectUrl`
+}
+
 type config struct {
-	Db database `json:db`
+	Db  database `json:db`
+	Ali AliProp  `json:ali`
 }
 
 type app struct {
@@ -44,7 +51,9 @@ func (a *app) Init(db *gorm.DB) error {
 		}
 	}
 	schema.Init()
-	return nil
+	jsonStr, err := json.Marshal(a.config)
+	err = model.Setconfig(string(jsonStr))
+	return err
 }
 
 func (a *app) Schema() funplugin.Schema {

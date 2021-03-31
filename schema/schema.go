@@ -5,6 +5,7 @@ import (
 	"github.com/Fiber-Man/funplugin"
 	"github.com/Fiber-Man/funplugin/plugin"
 	"github.com/Fiber-Man/orderPlugin/model"
+	"github.com/gin-gonic/gin"
 	"github.com/graphql-go/graphql"
 )
 
@@ -60,12 +61,11 @@ func NewPlugSchema(pls funplugin.PluginManger) funplugin.Schema {
 
 	// roleAccountSchema, _ := pls.NewSchemaBuilder(model.RoleAccount{})
 	// marge(roleAccountSchema)
-
 	return funplugin.Schema{
 		Object: map[string]*graphql.Object{
 			// "account": accountType,
 
-			"orderInfo": orderInfoSchema.GraphQLType,
+			"orderInfo":  orderInfoSchema.GraphQLType,
 			"alipayInfo": alipaySchema.GraphQLType,
 
 			// "role":        roleSchema.GraphQLType,
@@ -73,5 +73,9 @@ func NewPlugSchema(pls funplugin.PluginManger) funplugin.Schema {
 		},
 		Query:    queryFields,
 		Mutation: mutationFields,
+		Get: map[string]func(c *gin.Context){
+			"/alireturn": model.Alireturn,
+			"/alipay":    model.Alipay,
+		},
 	}
 }
