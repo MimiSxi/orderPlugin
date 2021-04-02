@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/graphql-go/graphql"
@@ -10,7 +11,7 @@ import (
 	"time"
 )
 
-//"github.com/smartwalle/alipay/v3"
+// "github.com/smartwalle/alipay/v3"
 
 const (
 	//appID      = "2021002132662399"
@@ -35,8 +36,8 @@ func GenerateCode() string {
 
 // 支付宝付款
 type AliPayInfo struct {
-	ID          uint        `gorm:"primary_key" gqlschema:"query!;querys" description:"订单id"`
-	OrderId     uint        `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys" description:"订单id"`
+	ID          uint        `gorm:"primary_key" gqlschema:"query!;querys;delete!" description:"订单id"`
+	OrderId     uint        `gorm:"NOT NULL;" gqlschema:"create!;querys" description:"订单id"`
 	Title       string      `gorm:"Type:varchar(255);DEFAULT:'';NOT NULL;" gqlschema:"create!;querys" description:"标题"`
 	TradeNo     string      `gorm:"Type:varchar(255);DEFAULT:'';NOT NULL;" gqlschema:"querys" description:"支付宝交易号"`
 	OutTradeNo  string      `gorm:"Type:varchar(255);DEFAULT:'';NOT NULL;" gqlschema:"querys" description:"系统生成订单号"`
@@ -152,14 +153,34 @@ func Alipay(c *gin.Context) {
 	ali.TradeStatus = TradeStatusSuccess
 	ali.TradeNo = noti.TradeNo
 	err = db.Save(&ali).Error
+	order := &OrderInfo{}
+	db.Where("id = ?", ali.OrderId).First(&order)
+	order.PayTime = time.Now()
+	order.PaymentId = ali.ID
+	order.PayWay = ALIPAY
+	order.Status = TO_BE_DELIVER
+	err = db.Save(&order).Error
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	if RedirectUrl != "nil" {
-		c.Redirect(http.StatusMovedPermanently, RedirectUrl)
+		redirect := fmt.Sprintf("%s/orderId-%v?type=TO_BE_DELIVER", RedirectUrl, ali.OrderId)
+		c.Redirect(http.StatusMovedPermanently, redirect)
 		return
 	}
 	alipay.AckNotification(c.Writer) // 确认收到通知消息
 	return
+}
+
+func (o AliPayInfo) Delete(params graphql.ResolveParams) (AliPayInfo, error) {
+	v, ok := params.Source.(AliPayInfo)
+	if !ok {
+		return o, errors.New("delete param")
+	}
+	if len(v.TradeNo) > 0 {
+		return v, errors.New("订单已付款,无法取消")
+	}
+	err := db.Delete(&v).Error
+	return v, err
 }
