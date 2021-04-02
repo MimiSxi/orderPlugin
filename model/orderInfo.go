@@ -15,13 +15,12 @@ type OrderInfo struct {
 	ChildrenId   uint                `gorm:"unique_refer;" gqlschema:"create!;querys" description:"引用id" funservice:"object_typekey:ChildrenType"`
 	ChildrenType string              `gorm:"unique_refer;" gqlschema:"create!;querys" description:"引用类型"`
 	Status       OrderStatusEnumType `gorm:"DEFAULT:1;NOT NULL;" gqlschema:"create!;querys;update;" description:"订单状态"`
-	//GoodsProp    PropJson                  `gorm:"Type:text;" gqlschema:"create!;update;" description:"商品属性"`
 	Address      string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;querys;update" description:"收货地址"`
 	Remark       string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;querys;update" description:"备注"`
-	GoodsPrice   uint                `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;querys;update" description:"商品价格"`
-	FreightPrice uint                `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;querys;update" description:"运费"`
-	PaymentId    string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"create;update;querys" description:"支付id"`
-	PayWay       OrderPayWayEnumType `gorm:"DEFAULT:1;NOT NULL;" gqlschema:"create;update;querys" description:"支付方式枚举类型"`
+	GoodsPrice   float64             `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;querys;update" description:"商品价格"`
+	FreightPrice float64             `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;querys;update" description:"运费"`
+	PaymentId    uint                `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;update;querys" description:"支付id"`
+	PayWay       OrderPayWayEnumType `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create;update;querys" description:"支付方式枚举类型"`
 	PayTime      time.Time           `gorm:"DEFAULT:'1970-1-1 00:00:00';" description:"支付时间" gqlschema:"querys"`
 	DeliveryId   string              `gorm:"Type:varchar(1000);DEFAULT:'';NOT NULL;" gqlschema:"update;querys" description:"快递id"`
 	CreatedAt    time.Time           `description:"创建时间" gqlschema:"querys"`
@@ -86,13 +85,13 @@ func (o OrderInfo) Create(params graphql.ResolveParams) (OrderInfo, error) {
 		o.Address = p["address"].(string)
 	}
 	if p["freightPrice"] != nil {
-		o.FreightPrice = uint(p["freightPrice"].(int))
+		o.FreightPrice = p["freightPrice"].(float64)
 	}
 	if p["goodsPrice"] != nil {
-		o.GoodsPrice = uint(p["goodsPrice"].(int))
+		o.GoodsPrice = p["goodsPrice"].(float64)
 	}
 	if p["paymentId"] != nil {
-		o.PaymentId = p["paymentId"].(string)
+		o.PaymentId = uint(p["paymentId"].(int))
 	}
 	if p["payWay"] != nil {
 		o.PayWay = p["payWay"].(OrderPayWayEnumType)
@@ -123,13 +122,13 @@ func (o OrderInfo) Update(params graphql.ResolveParams) (OrderInfo, error) {
 		v.Remark = p["remark"].(string)
 	}
 	if p["goodsPrice"] != nil {
-		v.GoodsPrice = uint(p["goodsPrice"].(int))
+		v.GoodsPrice = p["goodsPrice"].(float64)
 	}
 	if p["freightPrice"] != nil {
-		v.FreightPrice = uint(p["freightPrice"].(int))
+		v.FreightPrice = p["freightPrice"].(float64)
 	}
 	if p["paymentId"] != nil {
-		v.PaymentId = p["paymentId"].(string)
+		v.PaymentId = uint(p["paymentId"].(int))
 	}
 	if p["payWay"] != nil {
 		v.PayWay = p["payWay"].(OrderPayWayEnumType)
