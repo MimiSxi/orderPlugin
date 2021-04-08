@@ -8,6 +8,7 @@ import (
 	"github.com/smartwalle/alipay/v3"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -42,7 +43,7 @@ type AliPayInfo struct {
 	TradeNo     string      `gorm:"Type:varchar(255);DEFAULT:'';NOT NULL;" gqlschema:"querys" description:"支付宝交易号"`
 	OutTradeNo  string      `gorm:"Type:varchar(255);DEFAULT:'';NOT NULL;" gqlschema:"querys" description:"系统生成订单号"`
 	SellerId    string      `gorm:"Type:varchar(255);DEFAULT:'';NOT NULL;" gqlschema:"querys" description:"卖家支付宝用户号"`
-	TotalAmount string      `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"create!;querys" description:"订单总金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]"`
+	TotalAmount string      `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"querys" description:"订单总金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]"`
 	TradeStatus TradeStatus `gorm:"DEFAULT:0;NOT NULL;" gqlschema:"querys" description:"交易状态"`
 	PayTime     time.Time   `gorm:"DEFAULT:'1970-1-1 00:00:00';" description:"支付时间" gqlschema:"querys"`
 	CreatedAt   time.Time   `description:"创建时间" gqlschema:"querys"`
@@ -87,14 +88,20 @@ func (o AliPayInfo) Create(params graphql.ResolveParams) (AliPayInfo, error) {
 	}
 	var p = alipay.TradePagePay{}
 	o.Title = par["title"].(string)
-	o.TotalAmount = par["totalAmount"].(string)
 	p.NotifyURL = Url + "/alireturn"
 	p.ReturnURL = Url + "/alipay"
 	p.Subject = o.Title
 	p.OutTradeNo = GenerateCode()
-	p.TotalAmount = o.TotalAmount
 	p.ProductCode = "FAST_INSTANT_TRADE_PAY"
 	o.OrderId = uint(par["orderId"].(int))
+	order := &OrderInfo{}
+	err = db.Where("id = ?", o.OrderId).First(&order).Error
+	if err != nil {
+		return o, err
+	}
+	TotalAmount := order.GoodsPrice + order.FreightPrice
+	o.TotalAmount = strconv.FormatFloat(TotalAmount, 'f', 2, 64)
+	p.TotalAmount = o.TotalAmount
 	notfound := db.Where("order_id = ?", o.OrderId).First(&AliPayInfo{}).RecordNotFound()
 	if !notfound {
 		// orderid重复
